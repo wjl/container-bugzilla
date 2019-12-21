@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e -u -o pipefail
+
+# Start up using the existing init script.
+# This mostly does the work keeping the service up on its own.
+service mysql start
+
+# Ensure bugzilla has access to its database.
+sleep 5
+mysql <<-EOF
+	GRANT
+		SELECT, INSERT, UPDATE, DELETE, INDEX, ALTER, CREATE,
+		LOCK TABLES, CREATE TEMPORARY TABLES, DROP, REFERENCES
+	ON
+		bugzilla.*
+	TO
+		bugzilla@localhost
+	IDENTIFIED BY 'bugzilla';
+
+	FLUSH PRIVILEGES;
+EOF
+
+# Monitor the status periodically.
+# If it returns an error, exit immediately.
+while true; do
+	sleep 600
+	service mysql status || exit 1
+done

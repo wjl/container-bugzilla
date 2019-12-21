@@ -7,6 +7,8 @@ RUN \
 	# Dependencies.
 	apt-get -yq install \
 		apache2 \
+		cron \
+		git \
 		graphviz \
 		libappconfig-perl \
 		libauthen-radius-perl \
@@ -17,7 +19,7 @@ RUN \
 		libdate-calc-perl \
 		libdatetime-perl \
 		libdatetime-timezone-perl \
-		libdbd-pg-perl \
+		libdbd-mysql-perl \
 		libdbi-perl \
 		libemail-mime-perl \
 		libemail-reply-perl \
@@ -33,64 +35,79 @@ RUN \
 		libnet-ldap-perl \
 		libtemplate-perl \
 		libtemplate-plugin-gd-perl \
+		libtest-taint-perl \
 		libtheschwartz-perl \
 		liburi-perl \
 		libxml-twig-perl \
 		libxmlrpc-lite-perl \
+		make \
+		mariadb-server \
 		patchutils \
+		runit \
+		wget \
 	&& \
+	DEBIAN_FRONTEND=noninteractive apt-get install tzdata && \
 	apt-get -yq clean && \
 	rm -rf /var/lib/apt/*
 
 # Install non-packaged perl modules.
 RUN \
-	apt-get update && \
-	apt-get -yq install \
-		make \
+	cpan -i \
+		PatchReader \
 	&& \
-	cpan -i PatchReader && \
-	rm -rf /root/.cpan && \
-	apt-get -yq purge \
-		make \
-	&& \
-	apt-get -yq autoremove && \
-	apt-get -yq clean && \
-	rm -rf /var/lib/apt/*
+	rm -rf /root/.cpan
 
 # Install bugzilla.
 RUN \
-	apt-get update && \
-	apt-get -yq install \
-		git \
-	&& \
 	cd /var/www/html && \
-	git clone --branch release-5.0-stable https://github.com/bugzilla/bugzilla && \
-	apt-get -yq purge \
-		git \
-	&& \
-	apt-get -yq autoremove && \
-	apt-get -yq clean && \
-	rm -rf /var/lib/apt/*
+	git clone --branch release-5.0-stable https://github.com/bugzilla/bugzilla
 
 # Install configuration files.
-#COPY rootfs/ /
+COPY files/ /
 
-# Configure apache.
+# Setup apache.
 RUN \
-#	cd /etc/apache2/ && \
-#	patch < httpd.conf.diff
+	cd /etc/apache2/ && \
+	patch -p0 < apache2.conf.diff && \
 	a2enmod cgid && \
 	a2enmod expires && \
 	a2enmod headers && \
 	a2enmod rewrite && \
-	true
+	ln -sf /dev/console /var/log/apache2/access.log && \
+	ln -sf /dev/console /var/log/apache2/error.log && \
+	apache2ctl -t
 
-# Fix permissions of bugzilla tree.
+# Setup bugzilla.
 RUN \
-	chown -R www-data:www-data /var/www/html/bugzilla
+	cd /var/www/html/bugzilla && \
+	./checksetup.pl --check-modules && \
+	#rm localconfig && \
+	chown -R www-data:www-data .
 
-# Run as the www-data user.
-USER www-data
+# Setup mariadb
+RUN \
+	cd /etc/mysql/ && \
+	patch -p0 < mysql.conf.diff && \
+	ln -sf /dev/console /var/log/mysql/error.log
 
-# Set working directory to bugzilla area.
-WORKDIR /var/www/html/bugzilla
+# Define volumes for configuration & data.
+VOLUME \
+	/var/lib/mysql \
+	/var/www/html/bugzilla
+
+# Expose http port.
+EXPOSE 80/tcp
+
+# Run apache in the foreground.
+ENTRYPOINT ["/sbin/runit"]
+
+# Runit expects a SIGCONT in order to shutdown.
+STOPSIGNAL SIGCONT
+
+# Check bugzilla health.
+HEALTHCHECK --interval=30m --timeout=10s CMD \
+	./testserver.pl http://localhost/bugzilla
+
+# TODO:
+# [ ] bugzilla jobqueue service
+# [ ] bugzilla extensions

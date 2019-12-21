@@ -1,0 +1,9 @@
+--- mariadb.conf.d/50-mysqld_safe.cnf.orig	2019-12-21 17:35:42.074452468 +0000
++++ mariadb.conf.d/50-mysqld_safe.cnf	2019-12-21 17:36:22.015129313 +0000
+@@ -26,5 +26,4 @@
+ # Remember to edit /etc/mysql/debian.cnf when changing the socket location.
+ socket		= /var/run/mysqld/mysqld.sock
+ nice		= 0
+-skip_log_error
+-syslog
++skip_syslog

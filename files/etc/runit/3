@@ -1,0 +1,4 @@
+#!/bin/sh
+# Shutdown script.
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin

@@ -1,0 +1,14 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user command
+
+# Bugzilla periodic calls.
+   5 0 * * * root cd /var/www/html/bugzilla && ./collectstats.pl > /dev/console 2> /dev/console
+  55 0 * * * root cd /var/www/html/bugzilla && ./whineatnews.pl  > /dev/console 2> /dev/console
+*/15 * * * * root cd /var/www/html/bugzilla && ./whine.pl        > /dev/console 2> /dev/console
+
+# Backup MySQL databases periodically.
+28 0 * * * root cd /var/lib/mysql && mv all-databases-backup.sql.1 all-databases-backup.sql.2 2> /dev/console
+29 0 * * * root cd /var/lib/mysql && mv all-databases-backup.sql   all-databases-backup.sql.1 2> /dev/console
+30 0 * * * root cd /var/lib/mysql && mysqldump --all-databases   > all-databases-backup.sql   2> /dev/console

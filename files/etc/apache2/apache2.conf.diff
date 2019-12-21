@@ -1,0 +1,11 @@
+--- apache2.conf.orig	2019-12-21 03:36:16.017263708 +0000
++++ apache2.conf	2019-12-21 03:36:34.748174222 +0000
+@@ -209,7 +209,7 @@
+ # Note that the use of %{X-Forwarded-For}i instead of %h is not recommended.
+ # Use mod_remoteip instead.
+ #
+-LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
++LogFormat "%v:%p %h %l %u %t \"%m %U\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
+ LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+ LogFormat "%h %l %u %t \"%r\" %>s %O" common
+ LogFormat "%{Referer}i -> %U" referer
