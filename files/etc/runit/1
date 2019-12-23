@@ -2,10 +2,3 @@
 # Startup script.
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-
-# When this file exists and is executable, a SIGCONT to runit will shutdown the system.
-touch /run/runit.stopit
-chmod u+x /run/runit.stopit
-
-# Make console writeable by anybody for easier logging.
-chmod a+wx /dev/console

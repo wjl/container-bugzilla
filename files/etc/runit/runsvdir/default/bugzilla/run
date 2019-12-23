@@ -3,7 +3,7 @@
 # Only run this script once, not as a service.
 sv once bugzilla
 
-# Wait until the database is running & its startup has settled.
+# Wait until the database is running & settled.
 sv start mysql
 sleep 10
 
@@ -11,6 +11,4 @@ sleep 10
 cd /var/www/html/bugzilla
 
 # Run bugzilla's checksetup normally to verify everything is behaving correctly.
-# We have to call this twice because this may be a first-time run.
-./checksetup.pl /etc/bugzilla/checksetup.conf
 ./checksetup.pl /etc/bugzilla/checksetup.conf
