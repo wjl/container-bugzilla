@@ -107,21 +107,22 @@ RUN \
 	# We have to call checksetup twice initially this is a first-time run.
 	./checksetup.pl /etc/bugzilla/checksetup.conf && \
 	./checksetup.pl /etc/bugzilla/checksetup.conf && \
-	# Install extensions, phase 1
+	# Install extensions, phase 1 (dependencies)
 	cd extensions && \
 	git clone https://github.com/bayoteers/BayotBase.git && \
 	cd .. && \
 	./checksetup.pl && \
-	# Install extensions, phase 2
+	# Install extensions, phase 2 (normal extensions)
 	cd extensions && \
-	git clone https://github.com/bayoteers/AgileTools.git && \
+	# Turn off AgileTools by default; it's a bit too invasive for what it does.
+	#git clone https://github.com/bayoteers/AgileTools.git && \
 	git clone https://github.com/bayoteers/ChangeLog.git && \
 	git clone https://github.com/bayoteers/BugViewPlus.git && \
 	git clone https://github.com/bayoteers/ActivityGraph.git && \
 	git clone https://github.com/bayoteers/QuickIdeas.git && \
 	cd .. && \
 	./checksetup.pl && \
-	# Install extensions, phase 3
+	# Install extensions, phase 3 (ones that need patches)
 	cd extensions && \
 	# Disable TreeViewPlus for now; patch doesn't QUITE apply cleanly to latest Bugzilla.
 	# It could easily be fixed, and works fine if the rejected patch is applied by hand.
