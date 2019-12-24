@@ -150,7 +150,3 @@ STOPSIGNAL SIGCONT
 # Check bugzilla health.
 HEALTHCHECK --interval=30m --timeout=10s CMD \
 	./testserver.pl http://localhost/bugzilla
-
-# TODO:
-# [ ] bugzilla jobqueue service
-# [ ] bugzilla extensions

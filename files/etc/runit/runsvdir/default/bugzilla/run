@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Only run this script once, not as a service.
-sv once bugzilla
-
 # Wait until the database is running & settled.
 sv start mysql
 sleep 10
@@ -12,3 +9,6 @@ cd /var/www/html/bugzilla
 
 # Run bugzilla's checksetup normally to verify everything is behaving correctly.
 ./checksetup.pl /etc/bugzilla/checksetup.conf
+
+# Run the jobserver.
+exec ./jobserver.pl -f start
