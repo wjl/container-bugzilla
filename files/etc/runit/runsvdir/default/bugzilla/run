@@ -11,4 +11,4 @@ cd /var/www/html/bugzilla
 ./checksetup.pl /etc/bugzilla/checksetup.conf
 
 # Run the jobserver.
-exec ./jobserver.pl -f start
+exec ./jobqueue.pl -f start
